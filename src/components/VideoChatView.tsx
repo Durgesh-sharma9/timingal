@@ -433,21 +433,21 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 py-4 lg:py-6 flex flex-col gap-4">
       {/* Status Bar */}
-      <div className="bg-[#070709]/90 border border-[#1a1a1f] backdrop-blur-md rounded-2xl px-4 py-3 flex items-center justify-between text-xs">
+      <div className="bg-white/80 border border-slate-200/80 backdrop-blur-md rounded-2xl px-4 py-3.5 flex items-center justify-between text-xs shadow-sm">
         <div className="flex items-center gap-2.5">
           {isSearching ? (
-            <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+            <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
           ) : isConnected ? (
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <AlertCircle className="w-4 h-4 text-amber-500" />
           )}
-          <span className="font-semibold text-slate-200">{statusText}</span>
+          <span className="font-bold text-slate-700">{statusText}</span>
         </div>
 
         {roomId && (
-          <div className="hidden sm:flex items-center gap-2 text-slate-500 font-mono text-[10px] tracking-wider uppercase font-semibold">
-            <Shield className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="hidden sm:flex items-center gap-2 text-slate-400 font-mono text-[10px] tracking-wider uppercase font-bold">
+            <Shield className="w-3.5 h-3.5 text-indigo-550" />
             <span>P2P Channel: {roomId.slice(0, 14)}...</span>
           </div>
         )}
@@ -459,7 +459,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         <div className="lg:col-span-2 flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             {/* Remote Video (Stranger) */}
-            <div className="relative bg-[#020203] border border-[#151518] rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-2xl transition-all duration-300 hover:border-[#1e1e24]">
+            <div className="relative bg-slate-100 border border-slate-200/80 rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-md transition-all duration-300 hover:border-slate-350">
               <video
                 ref={remoteVideoRef}
                 autoPlay
@@ -472,38 +472,38 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                   {isSearching ? (
                     <>
                       <div className="relative flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-emerald-550/5 border border-emerald-500/10 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+                        <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-sm">
+                          <Loader2 className="w-8 h-8 text-indigo-550 animate-spin" />
                         </div>
-                        <div className="absolute inset-0 rounded-full border border-emerald-400/10 animate-ping" />
+                        <div className="absolute inset-0 rounded-full border border-indigo-450/10 animate-ping" />
                       </div>
-                      <p className="text-sm font-bold text-white">Searching for stranger...</p>
-                      <p className="text-xs text-slate-500 max-w-xs">
+                      <p className="text-sm font-bold text-slate-800">Searching for stranger...</p>
+                      <p className="text-xs text-slate-400 max-w-xs">
                         Matching you with available users in the queue.
                       </p>
                     </>
                   ) : roomId ? (
                     <>
                       <div className="relative flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-amber-500/5 border border-amber-500/10 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                        <div className="w-16 h-16 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center shadow-sm">
+                          <Loader2 className="w-8 h-8 text-purple-550 animate-spin" />
                         </div>
-                        <div className="absolute inset-0 rounded-full border border-amber-400/10 animate-ping" />
+                        <div className="absolute inset-0 rounded-full border border-purple-450/10 animate-ping" />
                       </div>
-                      <p className="text-sm font-bold text-white">Match found!</p>
-                      <p className="text-xs text-slate-550 max-w-xs">
+                      <p className="text-sm font-bold text-slate-850">Match found!</p>
+                      <p className="text-xs text-slate-450 max-w-xs">
                         Establishing secure P2P video...
                       </p>
                     </>
                   ) : (
                     <>
-                      <div className="w-14 h-14 rounded-full bg-[#070709] border border-[#151518] flex items-center justify-center text-slate-655">
+                      <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-400">
                         <UserX className="w-7 h-7" />
                       </div>
-                      <p className="text-sm font-bold text-slate-400">Ready to Match</p>
+                      <p className="text-sm font-bold text-slate-500">Ready to Match</p>
                       <button
                         onClick={handleNextStranger}
-                        className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-550 hover:from-indigo-400 hover:to-purple-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
                       >
                         Find Next Stranger
                       </button>
@@ -513,14 +513,14 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               )}
 
               {/* Overlay Label */}
-              <div className="absolute top-3 left-3 bg-[#070709]/95 backdrop-blur-md border border-[#1a1a1f] px-3.5 py-1.5 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 shadow-md">
-                <User className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm">
+                <User className="w-3.5 h-3.5 text-indigo-500" />
                 <span>Stranger</span>
               </div>
             </div>
 
             {/* Local Video (You) */}
-            <div className="relative bg-[#020203] border border-[#151518] rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-2xl transition-all duration-300 hover:border-[#1e1e24]">
+            <div className="relative bg-slate-100 border border-slate-200/80 rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-md transition-all duration-300 hover:border-slate-350">
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -530,19 +530,19 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               />
 
               {isCameraOff && (
-                <div className="flex flex-col items-center justify-center text-slate-655 p-6 space-y-2">
-                  <div className="w-14 h-14 rounded-full bg-[#070709] border border-[#151518] flex items-center justify-center text-slate-600">
+                <div className="flex flex-col items-center justify-center text-slate-400 p-6 space-y-2">
+                  <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-400">
                     <User className="w-7 h-7" />
                   </div>
-                  <p className="text-xs font-semibold text-slate-500">Camera Paused</p>
+                  <p className="text-xs font-bold text-slate-555">Camera Paused</p>
                 </div>
               )}
 
               {/* Overlay Label */}
-              <div className="absolute top-3 left-3 bg-[#070709]/95 backdrop-blur-md border border-[#1a1a1f] px-3.5 py-1.5 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 shadow-md">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>You</span>
-                {isMuted && <span className="text-[10px] text-rose-450 ml-1 font-semibold">(Muted)</span>}
+                {isMuted && <span className="text-[10px] text-rose-600 ml-1 font-bold">(Muted)</span>}
               </div>
             </div>
           </div>

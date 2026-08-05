@@ -20,7 +20,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="min-h-screen bg-gradient-to-tr from-[#f8fafc] via-[#f5f7fa] to-[#eef2ff] text-slate-800 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Header */}
       <Header
         stats={stats}
@@ -44,7 +44,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500 px-4">
+      <footer className="border-t border-slate-200 bg-white/40 py-4 text-center text-xs text-slate-450 px-4">
         <p>
           Random Video Chat Demo • Powered by WebRTC MediaStreams & Socket.IO Signaling Server
         </p>

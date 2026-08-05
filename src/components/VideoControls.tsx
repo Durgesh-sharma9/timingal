@@ -25,19 +25,19 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
   isSearching,
 }) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#070709]/90 border border-[#1a1a1f] backdrop-blur-md rounded-2xl shadow-xl">
+    <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white/80 border border-slate-200/80 backdrop-blur-md rounded-2xl shadow-md">
       {/* Media Controls (Mute Mic, Camera Off, Mirror) */}
       <div className="flex items-center gap-2">
         <button
           onClick={onToggleMute}
           className={`p-3 rounded-xl border font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
             isMuted
-              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/15'
-              : 'bg-[#121214] border-[#222227] text-slate-200 hover:bg-[#1b1b1e]'
+              ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100/50'
+              : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100'
           }`}
           title={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
         >
-          {isMuted ? <MicOff className="w-4 h-4 text-rose-400" /> : <Mic className="w-4 h-4 text-emerald-400" />}
+          {isMuted ? <MicOff className="w-4 h-4 text-rose-600" /> : <Mic className="w-4 h-4 text-indigo-500" />}
           <span className="hidden sm:inline">{isMuted ? 'Unmute' : 'Mute'}</span>
         </button>
 
@@ -45,12 +45,12 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
           onClick={onToggleCamera}
           className={`p-3 rounded-xl border font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
             isCameraOff
-              ? 'bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/15'
-              : 'bg-[#121214] border-[#222227] text-slate-200 hover:bg-[#1b1b1e]'
+              ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100/50'
+              : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100'
           }`}
           title={isCameraOff ? 'Turn Camera On' : 'Turn Camera Off'}
         >
-          {isCameraOff ? <VideoOff className="w-4 h-4 text-rose-400" /> : <Camera className="w-4 h-4 text-emerald-400" />}
+          {isCameraOff ? <VideoOff className="w-4 h-4 text-rose-600" /> : <Camera className="w-4 h-4 text-indigo-500" />}
           <span className="hidden sm:inline">{isCameraOff ? 'Camera On' : 'Camera Off'}</span>
         </button>
 
@@ -58,12 +58,12 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
           onClick={onToggleMirror}
           className={`p-3 rounded-xl border font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
             isMirrored
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-              : 'bg-[#121214] border-[#222227] text-slate-200 hover:bg-[#1b1b1e]'
+              ? 'bg-indigo-50 border-indigo-200 text-indigo-650'
+              : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100'
           }`}
           title="Toggle Mirror Camera View"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-4 h-4 text-indigo-550" />
           <span className="hidden md:inline">Mirror</span>
         </button>
       </div>
@@ -73,7 +73,7 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
         <button
           onClick={onNext}
           disabled={isSearching}
-          className="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.15)] flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-550 hover:from-indigo-400 hover:to-purple-500 text-white font-extrabold text-xs rounded-xl shadow-[0_4px_15px_rgba(99,102,241,0.2)] flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <SkipForward className="w-4 h-4" />
           <span>{isSearching ? 'Searching...' : 'Next Stranger'}</span>
@@ -81,7 +81,7 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
 
         <button
           onClick={onStop}
-          className="px-4 py-3 bg-rose-500/5 hover:bg-rose-500/10 border border-rose-500/20 text-rose-400 font-bold text-xs rounded-xl flex items-center gap-2 transition-all cursor-pointer"
+          className="px-4 py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-650 font-bold text-xs rounded-xl flex items-center gap-2 transition-all cursor-pointer"
         >
           <Square className="w-4 h-4 fill-current" />
           <span>Stop</span>
