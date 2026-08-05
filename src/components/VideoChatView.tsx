@@ -161,8 +161,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         }
 
         // Step 2: Initialize Socket.IO connection
-        setStatusText('Connecting to signaling server...');
-        const socket = io('https://timingal.onrender.com', {
+        const socket = io({
           transports: ['websocket', 'polling'],
         });
         socketRef.current = socket;
