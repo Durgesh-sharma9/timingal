@@ -188,16 +188,19 @@ export function setupSignalingServer(io: Server) {
 
     // Relay SDP Offer
     socket.on('signal_offer', ({ roomId, offer }: { roomId: string; offer: any }) => {
+      console.log(`[Signaling] Offer received from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_offer', { offer });
     });
 
     // Relay SDP Answer
     socket.on('signal_answer', ({ roomId, answer }: { roomId: string; answer: any }) => {
+      console.log(`[Signaling] Answer received from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_answer', { answer });
     });
 
     // Relay ICE Candidate
     socket.on('signal_ice_candidate', ({ roomId, candidate }: { roomId: string; candidate: any }) => {
+      console.log(`[Signaling] ICE Candidate from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_ice_candidate', { candidate });
     });
 

@@ -242,11 +242,11 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           if (!pcRef.current || !socketRef.current) return;
 
           try {
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(offer));
+            await pcRef.current.setRemoteDescription(offer);
 
             // Flush any buffered pending ICE candidates
             for (const cand of pendingCandidatesRef.current) {
-              await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
+              await pcRef.current.addIceCandidate(cand);
             }
             pendingCandidatesRef.current = [];
 
@@ -275,11 +275,11 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           if (!pcRef.current) return;
 
           try {
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+            await pcRef.current.setRemoteDescription(answer);
 
             // Flush any buffered pending ICE candidates
             for (const cand of pendingCandidatesRef.current) {
-              await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
+              await pcRef.current.addIceCandidate(cand);
             }
             pendingCandidatesRef.current = [];
           } catch (err) {
@@ -293,7 +293,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
           try {
             if (pcRef.current.remoteDescription && pcRef.current.remoteDescription.type) {
-              await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+              await pcRef.current.addIceCandidate(candidate);
             } else {
               // Buffer candidate until remote description is set
               pendingCandidatesRef.current.push(candidate);
