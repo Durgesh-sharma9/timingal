@@ -449,6 +449,19 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                         Matching you with available users in the queue.
                       </p>
                     </>
+                  ) : roomId ? (
+                    <>
+                      <div className="relative flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                          <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                        </div>
+                        <div className="absolute inset-0 rounded-full border border-amber-400/20 animate-ping" />
+                      </div>
+                      <p className="text-sm font-semibold text-white">Match found!</p>
+                      <p className="text-xs text-slate-400 max-w-xs">
+                        Connecting video stream...
+                      </p>
+                    </>
                   ) : (
                     <>
                       <div className="w-14 h-14 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
