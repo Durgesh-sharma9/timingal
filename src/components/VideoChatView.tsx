@@ -431,9 +431,9 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 lg:py-6 flex flex-col gap-4">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6 flex flex-col gap-3 lg:gap-4 h-[calc(100vh-65px)] lg:h-auto min-h-0 overflow-hidden">
       {/* Status Bar */}
-      <div className="bg-white/80 border border-slate-200/80 backdrop-blur-md rounded-2xl px-4 py-3.5 flex items-center justify-between text-xs shadow-sm">
+      <div className="bg-white/80 border border-slate-200/80 backdrop-blur-md rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs shadow-sm shrink-0">
         <div className="flex items-center gap-2.5">
           {isSearching ? (
             <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
@@ -454,12 +454,12 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
       </div>
 
       {/* Main Grid: Left Side Side-by-Side Videos, Right Side Text Chat */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[500px]">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-3 lg:gap-4 flex-1 min-h-0">
         {/* Videos Container (Takes 2 cols on lg screens) */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+        <div className="lg:col-span-2 flex flex-col gap-3 min-h-0 flex-1 lg:flex-initial">
+          <div className="relative flex-1 flex flex-col sm:grid sm:grid-cols-2 gap-3 min-h-0">
             {/* Remote Video (Stranger) */}
-            <div className="relative bg-slate-100 border border-slate-200/80 rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-md transition-all duration-300 hover:border-slate-350">
+            <div className="relative flex-1 sm:flex-initial sm:h-full bg-slate-100 border border-slate-200/80 rounded-3xl overflow-hidden shadow-md transition-all duration-300 hover:border-slate-350 flex items-center justify-center group">
               <video
                 ref={remoteVideoRef}
                 autoPlay
@@ -490,8 +490,8 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                         </div>
                         <div className="absolute inset-0 rounded-full border border-purple-450/10 animate-ping" />
                       </div>
-                      <p className="text-sm font-bold text-slate-850">Match found!</p>
-                      <p className="text-xs text-slate-450 max-w-xs">
+                      <p className="text-sm font-bold text-slate-855">Match found!</p>
+                      <p className="text-xs text-slate-455 max-w-xs">
                         Establishing secure P2P video...
                       </p>
                     </>
@@ -503,7 +503,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                       <p className="text-sm font-bold text-slate-500">Ready to Match</p>
                       <button
                         onClick={handleNextStranger}
-                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-550 hover:from-indigo-400 hover:to-purple-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-550 hover:from-indigo-400 hover:to-purple-550 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
                       >
                         Find Next Stranger
                       </button>
@@ -513,14 +513,14 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               )}
 
               {/* Overlay Label */}
-              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm">
+              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm z-10">
                 <User className="w-3.5 h-3.5 text-indigo-500" />
                 <span>Stranger</span>
               </div>
             </div>
 
             {/* Local Video (You) */}
-            <div className="relative bg-slate-100 border border-slate-200/80 rounded-3xl overflow-hidden min-h-[260px] sm:min-h-[340px] flex items-center justify-center group shadow-md transition-all duration-300 hover:border-slate-350">
+            <div className="absolute bottom-3 right-3 w-28 h-36 z-20 shadow-lg border-2 border-white sm:relative sm:bottom-0 sm:right-0 sm:w-full sm:h-full sm:border sm:border-slate-200/80 sm:shadow-md bg-slate-100 rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-slate-350 flex items-center justify-center group">
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -541,7 +541,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               {/* Overlay Label */}
               <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-slate-200/80 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-1.5 shadow-sm">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>You</span>
+                <span className="hidden sm:inline">You</span>
                 {isMuted && <span className="text-[10px] text-rose-600 ml-1 font-bold">(Muted)</span>}
               </div>
             </div>
@@ -562,7 +562,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         </div>
 
         {/* Text Chat Panel (1 col on lg screens) */}
-        <div className="lg:col-span-1 h-full min-h-[380px]">
+        <div className="lg:col-span-1 h-[280px] sm:h-[350px] lg:h-full min-h-0 flex flex-col shrink-0 lg:shrink-1">
           <ChatPanel
             messages={messages}
             onSendMessage={handleSendMessage}
