@@ -1,0 +1,6 @@
+{
+  "name": "Random Video Chat",
+  "description": "A random WebRTC video chat web application with Socket.io signaling, in-memory matching queue, side-by-side video streams, and live text chat.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
