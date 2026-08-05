@@ -52,54 +52,54 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
     <div className="max-w-5xl mx-auto px-4 py-8 lg:py-16 flex flex-col items-center">
       {/* Hero Header */}
       <div className="text-center max-w-2xl mb-12">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/80 text-indigo-600 text-xs font-semibold mb-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 text-xs font-semibold mb-6">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Next-Gen WebRTC P2P Random Matching</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
           Connect instantly <br />
-          <span className="bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             with people globally
           </span>
         </h1>
 
-        <p className="text-slate-500 text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
+        <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
           Secure, low-latency, peer-to-peer audio/video streaming straight from your browser. No signup, no trackers.
         </p>
       </div>
 
       {/* Main Start Action Card */}
-      <div className="w-full max-w-md bg-white/80 border border-slate-200/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_-20px_rgba(99,102,241,0.15)] relative overflow-hidden mb-12">
+      <div className="w-full max-w-md bg-[#1e293b]/70 border border-slate-700/60 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden mb-12">
         <div className="absolute -top-12 -right-12 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col items-center text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-lg shadow-indigo-550/20">
             <Video className="w-7 h-7" />
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-1.5">Start a fresh conversation</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-xl font-bold text-white mb-1.5">Start a fresh conversation</h2>
+            <p className="text-xs text-slate-400">
               Camera & microphone permissions are requested upon connecting.
             </p>
           </div>
 
           {/* Device status badge */}
-          <div className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl p-4 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2.5 text-slate-600">
-              <Camera className="w-4 h-4 text-indigo-500" />
-              <Mic className="w-4 h-4 text-indigo-500" />
+          <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2.5 text-slate-300">
+              <Camera className="w-4 h-4 text-indigo-400" />
+              <Mic className="w-4 h-4 text-indigo-400" />
               <span className="font-bold">AV Hardware Status</span>
             </div>
 
             {devicePermissionState === 'granted' ? (
-              <span className="flex items-center gap-1.5 text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold bg-emerald-950/40 border border-emerald-900/50 px-2.5 py-1 rounded-lg">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Active
               </span>
             ) : devicePermissionState === 'denied' ? (
-              <span className="flex items-center gap-1.5 text-rose-600 font-semibold bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-lg">
+              <span className="flex items-center gap-1.5 text-rose-400 font-semibold bg-rose-950/40 border border-rose-900/50 px-2.5 py-1 rounded-lg">
                 <AlertCircle className="w-3.5 h-3.5" />
                 Blocked
               </span>
@@ -107,7 +107,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
               <button
                 onClick={handleTestCamera}
                 disabled={isCheckingDevices}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100/70 border border-indigo-200/60 px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                className="text-xs font-bold text-indigo-300 hover:text-indigo-200 bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-900/50 px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer"
               >
                 {isCheckingDevices ? 'Checking...' : 'Request Test'}
               </button>
@@ -123,7 +123,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <div className="flex items-center gap-4 text-xs text-slate-400 pt-2">
+          <div className="flex items-center gap-4 text-xs text-slate-500 pt-2">
             <span>• No Account</span>
             <span>• Instant Match</span>
             <span>• P2P Encryption</span>
@@ -133,32 +133,32 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
 
       {/* Tech Architecture Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-        <div className="bg-white/60 border border-slate-200/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300">
-          <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+        <div className="bg-[#1e293b]/40 border border-slate-800/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-[#1e293b]/70 shadow-md transition-all duration-300">
+          <div className="w-9 h-9 rounded-xl bg-indigo-950 text-indigo-400 flex items-center justify-center mb-3">
             <Cpu className="w-4.5 h-4.5" />
           </div>
-          <h3 className="text-slate-900 font-bold text-sm mb-1.5">WebRTC Connection</h3>
-          <p className="text-slate-500 text-xs leading-relaxed">
+          <h3 className="text-slate-100 font-bold text-sm mb-1.5">WebRTC Connection</h3>
+          <p className="text-slate-400 text-xs leading-relaxed">
             Direct host-to-host media stream using ICE candidates for minimal delay.
           </p>
         </div>
 
-        <div className="bg-white/60 border border-slate-200/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300">
-          <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-3">
+        <div className="bg-[#1e293b]/40 border border-slate-800/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-[#1e293b]/70 shadow-md transition-all duration-300">
+          <div className="w-9 h-9 rounded-xl bg-purple-950 text-purple-400 flex items-center justify-center mb-3">
             <Video className="w-4.5 h-4.5" />
           </div>
-          <h3 className="text-slate-900 font-bold text-sm mb-1.5">Socket.IO Signaling</h3>
-          <p className="text-slate-500 text-xs leading-relaxed">
+          <h3 className="text-slate-100 font-bold text-sm mb-1.5">Socket.IO Signaling</h3>
+          <p className="text-slate-400 text-xs leading-relaxed">
             Lightweight messaging broker facilitating instantaneous SDP and ICE payloads.
           </p>
         </div>
 
-        <div className="bg-white/60 border border-slate-200/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300">
-          <div className="w-9 h-9 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center mb-3">
+        <div className="bg-[#1e293b]/40 border border-slate-800/60 rounded-2xl p-5 hover:border-indigo-500/20 hover:bg-[#1e293b]/70 shadow-md transition-all duration-300">
+          <div className="w-9 h-9 rounded-xl bg-pink-950 text-pink-400 flex items-center justify-center mb-3">
             <ShieldAlert className="w-4.5 h-4.5" />
           </div>
-          <h3 className="text-slate-900 font-bold text-sm mb-1.5">Zero Retention Queue</h3>
-          <p className="text-slate-500 text-xs leading-relaxed">
+          <h3 className="text-slate-100 font-bold text-sm mb-1.5">Zero Retention Queue</h3>
+          <p className="text-slate-400 text-xs leading-relaxed">
             Instant matching queue strictly in memory, cleaning up all socket records on leave.
           </p>
         </div>
@@ -167,7 +167,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
       <div className="mt-12 text-center">
         <button
           onClick={onOpenNotice}
-          className="text-xs text-indigo-500 hover:text-indigo-600 hover:underline underline-offset-4 font-bold cursor-pointer"
+          className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline underline-offset-4 font-bold cursor-pointer"
         >
           Read Safety Notice & Regulatory Compliance Requirements
         </button>
