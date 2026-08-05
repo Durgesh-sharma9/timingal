@@ -92,6 +92,10 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   const createPeerConnection = useCallback((currentRoomId: string) => {
     cleanupPeerConnection();
 
+    // Restore room ID states that were cleared during cleanupPeerConnection
+    setRoomId(currentRoomId);
+    roomIdRef.current = currentRoomId;
+
     console.log(`[WebRTC] Creating new RTCPeerConnection for room: ${currentRoomId}`);
     const pc = new RTCPeerConnection(STUN_SERVERS);
     pcRef.current = pc;
