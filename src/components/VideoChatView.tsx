@@ -533,7 +533,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           <ChatPanel
             messages={messages}
             onSendMessage={handleSendMessage}
-            isConnected={isConnected}
+            isConnected={!!roomId}
           />
         </div>
       </div>
