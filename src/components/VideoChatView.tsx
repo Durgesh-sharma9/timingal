@@ -48,11 +48,19 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
   const onStatsUpdateRef = useRef(onStatsUpdate);
   const roomIdRef = useRef<string | null>(null);
+  const mobileChatRef = useRef<HTMLDivElement>(null);
 
   // Keep onStatsUpdate ref current
   useEffect(() => {
     onStatsUpdateRef.current = onStatsUpdate;
   }, [onStatsUpdate]);
+
+  // Scroll mobile chat to bottom on new message
+  useEffect(() => {
+    if (mobileChatRef.current) {
+      mobileChatRef.current.scrollTop = mobileChatRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   // Add system message helper
   const addSystemMessage = (text: string) => {
@@ -514,11 +522,14 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               )}
 
               {/* Mobile Chat Overlay (TikTok/Instagram style, only visible on mobile/tablet) */}
-              <div className="lg:hidden absolute bottom-4 left-3 right-3 z-30 max-h-[140px] overflow-y-auto flex flex-col gap-1.5 pointer-events-none">
-                {messages.slice(-4).map((msg) => {
+              <div
+                ref={mobileChatRef}
+                className="lg:hidden absolute bottom-4 left-3 w-[75%] max-w-[260px] z-30 max-h-[120px] overflow-y-auto flex flex-col gap-1.5 pointer-events-auto no-scrollbar"
+              >
+                {messages.map((msg) => {
                   if (msg.sender === 'system') {
                     return (
-                      <div key={msg.id} className="self-center">
+                      <div key={msg.id} className="self-center py-0.5">
                         <span className="text-[9px] bg-slate-950/70 backdrop-blur-md border border-slate-800/40 text-indigo-300 font-bold px-2.5 py-0.5 rounded-full">
                           {msg.text}
                         </span>
@@ -530,7 +541,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                   return (
                     <div
                       key={msg.id}
-                      className={`max-w-[75%] px-3 py-1.5 rounded-xl text-[10px] sm:text-xs backdrop-blur-md border border-slate-850/40 text-white ${
+                      className={`max-w-[90%] px-3 py-1.5 rounded-xl text-[10px] sm:text-xs backdrop-blur-md border border-slate-850/40 text-white ${
                         isYou
                           ? 'bg-indigo-650/80 border-indigo-500/20 self-end rounded-tr-none'
                           : 'bg-slate-900/80 self-start rounded-tl-none'
