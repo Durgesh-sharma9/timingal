@@ -14,6 +14,9 @@ const STUN_SERVERS = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
   ],
 };
 
@@ -102,9 +105,21 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
     // Handle incoming remote media tracks
     pc.ontrack = (event) => {
-      console.log('[WebRTC] Remote track received:', event.streams[0]);
-      if (remoteVideoRef.current && event.streams[0]) {
-        remoteVideoRef.current.srcObject = event.streams[0];
+      console.log('[WebRTC] Remote track received:', event.track.kind);
+      if (remoteVideoRef.current) {
+        if (event.streams && event.streams[0]) {
+          remoteVideoRef.current.srcObject = event.streams[0];
+        } else {
+          // Fallback if event.streams is empty
+          if (!remoteVideoRef.current.srcObject) {
+            remoteVideoRef.current.srcObject = new MediaStream();
+          }
+          (remoteVideoRef.current.srcObject as MediaStream).addTrack(event.track);
+        }
+        // Explicitly trigger play to bypass browser autoplay policies
+        remoteVideoRef.current.play().catch((err) => {
+          console.warn('[WebRTC] Error playing remote video:', err);
+        });
       }
     };
 
@@ -119,18 +134,29 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
       }
     };
 
-    // Monitor WebRTC connection status state
-    pc.onconnectionstatechange = () => {
-      console.log(`[WebRTC State] ${pc.connectionState}`);
-      if (pc.connectionState === 'connected') {
+    // Monitor WebRTC connection status state using both connectionState and iceConnectionState
+    const checkConnectionState = () => {
+      const connState = pc.connectionState;
+      const iceState = pc.iceConnectionState;
+      console.log(`[WebRTC State Update] connectionState: ${connState}, iceConnectionState: ${iceState}`);
+
+      if (connState === 'connected' || iceState === 'connected' || iceState === 'completed') {
         setStatusText('Connected! Video stream live.');
         setIsConnected(true);
         setIsSearching(false);
-      } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+      } else if (
+        connState === 'failed' ||
+        connState === 'disconnected' ||
+        iceState === 'failed' ||
+        iceState === 'disconnected'
+      ) {
         setStatusText('Video stream interrupted.');
         setIsConnected(false);
       }
     };
+
+    pc.onconnectionstatechange = checkConnectionState;
+    pc.oniceconnectionstatechange = checkConnectionState;
 
     return pc;
   }, [cleanupPeerConnection]);
@@ -158,6 +184,9 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         localStreamRef.current = stream;
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
+          localVideoRef.current.play().catch((err) => {
+            console.warn('[WebRTC] Error playing local video:', err);
+          });
         }
 
         // Step 2: Initialize Socket.IO connection
