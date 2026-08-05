@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Loader2, User, UserX, Shield, Volume2, Sparkles, AlertCircle } from 'lucide-react';
+import { Loader2, User, UserX, Shield, Volume2, Sparkles, AlertCircle, Send } from 'lucide-react';
 import { ChatMessage, ServerStats } from '../types';
 import { VideoControls } from './VideoControls';
 import { ChatPanel } from './ChatPanel';
@@ -37,6 +37,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
   // Messages State
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [mobileInput, setMobileInput] = useState('');
 
   // Refs for WebRTC & Socket.IO
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -503,7 +504,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                       <p className="text-sm font-bold text-slate-300">Ready to Match</p>
                       <button
                         onClick={handleNextStranger}
-                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-550 hover:from-indigo-400 hover:to-purple-550 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-555 hover:from-indigo-400 hover:to-purple-550 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
                       >
                         Find Next Stranger
                       </button>
@@ -512,6 +513,38 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 </div>
               )}
 
+              {/* Mobile Chat Overlay (TikTok/Instagram style, only visible on mobile/tablet) */}
+              <div className="lg:hidden absolute bottom-4 left-3 right-3 z-30 max-h-[140px] overflow-y-auto flex flex-col gap-1.5 pointer-events-none">
+                {messages.slice(-4).map((msg) => {
+                  if (msg.sender === 'system') {
+                    return (
+                      <div key={msg.id} className="self-center">
+                        <span className="text-[9px] bg-slate-950/70 backdrop-blur-md border border-slate-800/40 text-indigo-300 font-bold px-2.5 py-0.5 rounded-full">
+                          {msg.text}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  const isYou = msg.sender === 'you';
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`max-w-[75%] px-3 py-1.5 rounded-xl text-[10px] sm:text-xs backdrop-blur-md border border-slate-850/40 text-white ${
+                        isYou
+                          ? 'bg-indigo-650/80 border-indigo-500/20 self-end rounded-tr-none'
+                          : 'bg-slate-900/80 self-start rounded-tl-none'
+                      }`}
+                    >
+                      <span className="font-bold text-[8px] text-slate-400 block mb-0.5">
+                        {isYou ? 'You' : 'Stranger'}
+                      </span>
+                      {msg.text}
+                    </div>
+                  );
+                })}
+              </div>
+
               {/* Overlay Label */}
               <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md border border-slate-800 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 shadow-sm z-10">
                 <User className="w-3.5 h-3.5 text-indigo-400" />
@@ -519,8 +552,8 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               </div>
             </div>
 
-            {/* Local Video (You) */}
-            <div className="absolute bottom-3 right-3 w-28 h-36 z-20 shadow-2xl border-2 border-slate-800 sm:relative sm:bottom-0 sm:right-0 sm:w-full sm:h-full sm:border sm:border-slate-800 sm:shadow-md bg-[#0f172a] rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-slate-700 flex items-center justify-center group">
+            {/* Local Video (You) - Floats on top-right on mobile/tablet */}
+            <div className="absolute top-3 right-3 w-28 h-36 sm:relative sm:top-0 sm:right-0 sm:w-full sm:h-full sm:border sm:border-slate-800 sm:shadow-md bg-[#0f172a] rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-slate-700 flex items-center justify-center group z-20 shadow-2xl border-2 border-slate-800">
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -547,6 +580,34 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
             </div>
           </div>
 
+          {/* Mobile Chat Input Form (Only visible on mobile/tablet, slides up with keyboard) */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (mobileInput.trim()) {
+                handleSendMessage(mobileInput);
+                setMobileInput('');
+              }
+            }}
+            className="lg:hidden flex gap-2 p-2 bg-[#1e293b]/60 border border-slate-800/60 rounded-2xl shrink-0"
+          >
+            <input
+              type="text"
+              value={mobileInput}
+              onChange={(e) => setMobileInput(e.target.value)}
+              placeholder={roomId ? "Send message to stranger..." : "Waiting to match..."}
+              disabled={!roomId}
+              className="flex-1 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none disabled:opacity-40"
+            />
+            <button
+              type="submit"
+              disabled={!roomId || !mobileInput.trim()}
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+
           {/* Video Action Controls Bar */}
           <VideoControls
             isMuted={isMuted}
@@ -561,8 +622,8 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           />
         </div>
 
-        {/* Text Chat Panel (1 col on lg screens) */}
-        <div className="lg:col-span-1 h-[280px] sm:h-[350px] lg:h-full min-h-0 flex flex-col shrink-0 lg:shrink-1">
+        {/* Text Chat Panel (Only visible on desktop lg screens) */}
+        <div className="hidden lg:flex lg:col-span-1 h-full min-h-0 flex-col">
           <ChatPanel
             messages={messages}
             onSendMessage={handleSendMessage}
