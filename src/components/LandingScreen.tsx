@@ -61,32 +61,9 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-9 flex flex-col items-center">
-      {/* Hero Header */}
-      <div className="text-center max-w-2xl mb-6 sm:mb-8">
-        {/* Compact Glowing Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-semibold mb-4 shadow-sm backdrop-blur-md">
-          <Sparkles className="w-3 h-3 text-indigo-600" />
-          <span>Next-Gen WebRTC Video Network</span>
-          <span className="w-1 h-1 rounded-full bg-indigo-400" />
-          <span className="text-indigo-600 font-medium">100% Free & Fast</span>
-        </div>
-
-        {/* Display Headline - Compact */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display text-slate-900 tracking-tight leading-[1.12] mb-3">
-          Meet interesting people <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            across the globe.
-          </span>
-        </h1>
-
-        <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-          Instant 1-on-1 random video chat powered by ultra low-latency WebRTC streams. No registration, no tracking, just real spontaneous conversations.
-        </p>
-      </div>
-
-      {/* Main Start Action Glass Card - Compact */}
-      <div className="w-full max-w-md relative mb-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-7 flex flex-col items-center">
+      {/* Main Start Action Glass Card - Now at the Top */}
+      <div className="w-full max-w-md relative mb-6">
         {/* Card Ambient Glow */}
         <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-lg pointer-events-none" />
 
@@ -98,7 +75,7 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
             </div>
 
             <div>
-              <h2 className="text-lg font-bold font-display text-slate-900">
+              <h2 className="text-lg sm:text-xl font-bold font-display text-slate-900">
                 Ready to make a connection?
               </h2>
               <p className="text-xs text-slate-500">
@@ -170,44 +147,63 @@ export const LandingScreen: React.FC<LandingScreenProps> = ({
         </div>
       </div>
 
+      {/* Hero / About Headline - Positioned Below the Card */}
+      <div className="text-center max-w-lg mb-5">
+        <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-semibold mb-2">
+          <Sparkles className="w-3 h-3 text-indigo-600" />
+          <span>Next-Gen WebRTC Video Network</span>
+        </div>
+
+        <h2 className="text-lg sm:text-xl font-bold font-display text-slate-800 mb-1">
+          Meet interesting people{' '}
+          <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            across the globe.
+          </span>
+        </h2>
+
+        <p className="text-slate-500 text-xs leading-relaxed max-w-sm mx-auto">
+          Instant 1-on-1 random video chat powered by ultra low-latency WebRTC streams. No registration, no tracking.
+        </p>
+      </div>
+
       {/* Feature Architecture Matrix - Compact */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-3xl">
-        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all hover:border-indigo-300">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mb-2.5">
-            <Zap className="w-4 h-4" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full max-w-2xl mb-4">
+        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3 backdrop-blur-md shadow-2xs transition-all hover:border-indigo-300">
+          <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mb-2">
+            <Zap className="w-3.5 h-3.5" />
           </div>
-          <h3 className="text-slate-900 font-bold font-display text-xs sm:text-sm mb-1">Direct P2P WebRTC</h3>
-          <p className="text-slate-500 text-[11px] leading-relaxed">
-            Encrypted browser-to-browser media streams via STUN with minimal latency.
+          <h3 className="text-slate-900 font-bold font-display text-xs mb-0.5">Direct P2P WebRTC</h3>
+          <p className="text-slate-500 text-[10px] leading-relaxed">
+            Encrypted streams via STUN with minimal latency.
           </p>
         </div>
 
-        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all hover:border-purple-300">
-          <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mb-2.5">
-            <Lock className="w-4 h-4" />
+        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3 backdrop-blur-md shadow-2xs transition-all hover:border-purple-300">
+          <div className="w-7 h-7 rounded-lg bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mb-2">
+            <Lock className="w-3.5 h-3.5" />
           </div>
-          <h3 className="text-slate-900 font-bold font-display text-xs sm:text-sm mb-1">Zero Retention</h3>
-          <p className="text-slate-500 text-[11px] leading-relaxed">
-            Matching queue hosted in volatile server RAM. No user data is stored.
+          <h3 className="text-slate-900 font-bold font-display text-xs mb-0.5">Zero Retention</h3>
+          <p className="text-slate-500 text-[10px] leading-relaxed">
+            Volatile RAM queue. No user data stored.
           </p>
         </div>
 
-        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3.5 sm:p-4 backdrop-blur-md shadow-xs transition-all hover:border-pink-300">
-          <div className="w-8 h-8 rounded-lg bg-pink-50 border border-pink-200 text-pink-600 flex items-center justify-center mb-2.5">
-            <Globe2 className="w-4 h-4" />
+        <div className="bg-white/80 border border-slate-200/90 rounded-xl p-3 backdrop-blur-md shadow-2xs transition-all hover:border-pink-300">
+          <div className="w-7 h-7 rounded-lg bg-pink-50 border border-pink-200 text-pink-600 flex items-center justify-center mb-2">
+            <Globe2 className="w-3.5 h-3.5" />
           </div>
-          <h3 className="text-slate-900 font-bold font-display text-xs sm:text-sm mb-1">Instant Signaling</h3>
-          <p className="text-slate-500 text-[11px] leading-relaxed">
-            Real-time handshakes that match you with a stranger in milliseconds.
+          <h3 className="text-slate-900 font-bold font-display text-xs mb-0.5">Instant Signaling</h3>
+          <p className="text-slate-500 text-[10px] leading-relaxed">
+            Fast handshakes to connect in milliseconds.
           </p>
         </div>
       </div>
 
       {/* Safety Notice Link */}
-      <div className="mt-6 text-center">
+      <div className="text-center">
         <button
           onClick={onOpenNotice}
-          className="inline-flex items-center gap-1.5 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer bg-white/80 border border-slate-200/80 px-3 py-1.5 rounded-full shadow-2xs transition-all"
+          className="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer bg-white/80 border border-slate-200/80 px-3 py-1 rounded-full shadow-2xs transition-all"
         >
           <ShieldAlert className="w-3 h-3 text-amber-500" />
           <span>Educational Notice & Guidelines</span>
