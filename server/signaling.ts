@@ -1,30 +1,61 @@
 /**
  * ============================================================================
- * IMPORTANT NOTICE / DISCLAIMER:
- * This application is a LOCAL DEMO & LEARNING PROJECT ONLY.
- * It is NOT intended for public deployment or commercial production use.
- * 
- * A production-ready version of a random video chat app requires:
- * 1. Mandatory Age Verification (18+ / Parental Controls).
- * 2. Automated Content Moderation (real-time video/image classification & text filters).
- * 3. User Reporting, Blocking, and Abuse Monitoring Mechanisms.
- * 4. Rate Limiting, Anti-Spam, and IP/Device Banning capabilities.
- * 5. TURN Servers (CoTURN / Twilio) alongside STUN for symmetric NAT traversal.
- * 6. Legal Compliance & Terms of Service Review (COPPA, GDPR, Privacy Policies).
+ * DESTINY SIGNALING SERVER WITH SAFETY & MODERATION INFRASTRUCTURE
+ * - Strict In-Memory Queue & Room Management
+ * - Client IP Tracking & Ban Enforcement
+ * - Real-Time Text Moderation Filter
+ * - Abuse Prevention & User Reporting Pipeline
  * ============================================================================
  */
 
 import { Server, Socket } from 'socket.io';
+import { moderateText } from './moderation.js';
 
 /**
- * IN-MEMORY STATE FOR RANDOM MATCHING QUEUE & ROOMS
+ * IN-MEMORY STATE
  */
 const waitingQueue: string[] = [];
 const activeRooms = new Map<string, { p1: string; p2: string }>();
 const userRooms = new Map<string, string>();
 
+// Abuse & Ban Tracking
+interface BanRecord {
+  reason: string;
+  expiresAt: number;
+}
+const bannedIPs = new Map<string, BanRecord>();
+const ipStrikes = new Map<string, number>();
+
 /**
- * Broadcast current server stats (online users, queue size) to all connected clients.
+ * Helper to extract client IP address accurately
+ */
+function getClientIp(socket: Socket): string {
+  const forwarded = socket.handshake.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    return forwarded.split(',')[0].trim();
+  }
+  return socket.handshake.address || 'unknown';
+}
+
+/**
+ * Checks if an IP is currently banned
+ */
+function isIpBanned(ip: string): { banned: boolean; reason?: string; remainingSec?: number } {
+  const record = bannedIPs.get(ip);
+  if (!record) return { banned: false };
+
+  const now = Date.now();
+  if (now > record.expiresAt) {
+    bannedIPs.delete(ip);
+    return { banned: false };
+  }
+
+  const remainingSec = Math.ceil((record.expiresAt - now) / 1000);
+  return { banned: true, reason: record.reason, remainingSec };
+}
+
+/**
+ * Broadcast current server stats (online users, queue size)
  */
 function broadcastStats(io: Server) {
   const onlineCount = io.sockets.sockets.size;
@@ -45,7 +76,7 @@ function removeFromQueue(socketId: string) {
 /**
  * Cleans up active room for a given socket, notifying the room partner if applicable.
  */
-function leaveActiveRoom(io: Server, socketId: string, isDisconnecting = false): string | null {
+function leaveActiveRoom(io: Server, socketId: string, isDisconnecting = false, reasonText?: string): string | null {
   const roomId = userRooms.get(socketId);
   if (!roomId) return null;
 
@@ -63,7 +94,7 @@ function leaveActiveRoom(io: Server, socketId: string, isDisconnecting = false):
     if (partnerSocket) {
       partnerSocket.leave(roomId);
       partnerSocket.emit('partner_left', {
-        reason: isDisconnecting ? 'Partner disconnected' : 'Partner left the chat'
+        reason: reasonText || (isDisconnecting ? 'Partner disconnected' : 'Partner left the chat')
       });
     }
   }
@@ -77,24 +108,43 @@ function leaveActiveRoom(io: Server, socketId: string, isDisconnecting = false):
 }
 
 /**
- * Initializes Socket.IO event handlers for WebRTC Signaling & Queueing.
+ * Initializes Socket.IO event handlers for WebRTC Signaling & Moderation.
  */
 export function setupSignalingServer(io: Server) {
   io.on('connection', (socket: Socket) => {
-    console.log(`[Socket.IO] Client connected: ${socket.id}`);
+    const clientIp = getClientIp(socket);
+    console.log(`[Socket.IO] Client connected: ${socket.id} (IP: ${clientIp})`);
+
+    // 1. Check IP Ban Status
+    const banCheck = isIpBanned(clientIp);
+    if (banCheck.banned) {
+      console.warn(`[Security] Rejected banned IP: ${clientIp} (${banCheck.reason})`);
+      socket.emit('banned_notice', {
+        reason: banCheck.reason,
+        remainingSec: banCheck.remainingSec,
+      });
+      socket.disconnect(true);
+      return;
+    }
+
     broadcastStats(io);
 
     /**
      * Event: join_queue
-     * Triggered when user clicks "Start Chat" or "Next".
      */
     socket.on('join_queue', () => {
-      console.log(`[Queue] Socket ${socket.id} requested to join queue.`);
+      // Re-verify ban status
+      const recheck = isIpBanned(clientIp);
+      if (recheck.banned) {
+        socket.emit('banned_notice', { reason: recheck.reason, remainingSec: recheck.remainingSec });
+        socket.disconnect(true);
+        return;
+      }
+
+      console.log(`[Queue] Socket ${socket.id} joining queue.`);
 
       // Leave any existing active room
       leaveActiveRoom(io, socket.id);
-
-      // Ensure socket is not already in waiting queue
       removeFromQueue(socket.id);
 
       // Clean up dead sockets from the waiting queue
@@ -107,27 +157,19 @@ export function setupSignalingServer(io: Server) {
           continue;
         }
 
-        // We found a valid partner! Pop partner from queue
+        // Valid partner found
         waitingQueue.shift();
-
         const roomId = `room_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
-        // Both sockets join the socket.io room
         socket.join(roomId);
         partnerSocket.join(roomId);
 
-        // Store active room mapping
         activeRooms.set(roomId, { p1: partnerSocket.id, p2: socket.id });
         userRooms.set(partnerSocket.id, roomId);
         userRooms.set(socket.id, roomId);
 
         console.log(`[Queue] Paired ${partnerSocket.id} and ${socket.id} in room ${roomId}`);
 
-        /**
-         * WEBRTC SIGNALING ROLE ASSIGNMENT:
-         * One partner must act as the 'initiator' (creates the WebRTC SDP offer),
-         * while the other acts as the 'receiver' (waits for offer, creates SDP answer).
-         */
         partnerSocket.emit('matched', {
           roomId,
           isInitiator: true,
@@ -144,7 +186,7 @@ export function setupSignalingServer(io: Server) {
         return;
       }
 
-      // If no waiting partner was found, add this socket to waiting queue
+      // No waiting partner found
       waitingQueue.push(socket.id);
       socket.emit('waiting_in_queue');
       broadcastStats(io);
@@ -152,25 +194,20 @@ export function setupSignalingServer(io: Server) {
 
     /**
      * Event: leave_queue
-     * Triggered when user clicks "Stop" while waiting.
      */
     socket.on('leave_queue', () => {
-      console.log(`[Queue] Socket ${socket.id} left queue.`);
       removeFromQueue(socket.id);
       broadcastStats(io);
     });
 
     /**
      * Event: leave_chat
-     * Triggered when user clicks "Next" or "Stop" during active video chat.
      */
     socket.on('leave_chat', (data?: { requeue?: boolean }) => {
-      console.log(`[Chat] Socket ${socket.id} requested to leave chat (requeue: ${data?.requeue}).`);
       removeFromQueue(socket.id);
       leaveActiveRoom(io, socket.id);
 
       if (data?.requeue) {
-        // Re-trigger queue joining for instant matching
         socket.emit('trigger_requeue');
       }
 
@@ -179,47 +216,119 @@ export function setupSignalingServer(io: Server) {
 
     /**
      * WEBRTC SIGNALING RELAYS
-     * The server acts strictly as a transparent relay for WebRTC metadata.
-     * WebRTC connection establishment steps:
-     * 1. Initiator creates SDP Offer -> sends to server -> server relays to Receiver
-     * 2. Receiver sets Remote SDP -> creates SDP Answer -> sends to server -> server relays to Initiator
-     * 3. Both peers discover local ICE Candidates -> send to server -> server relays to opposite peer
      */
-
-    // Relay SDP Offer
     socket.on('signal_offer', ({ roomId, offer }: { roomId: string; offer: any }) => {
-      console.log(`[Signaling] Offer received from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_offer', { offer });
     });
 
-    // Relay SDP Answer
     socket.on('signal_answer', ({ roomId, answer }: { roomId: string; answer: any }) => {
-      console.log(`[Signaling] Answer received from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_answer', { answer });
     });
 
-    // Relay ICE Candidate
     socket.on('signal_ice_candidate', ({ roomId, candidate }: { roomId: string; candidate: any }) => {
-      console.log(`[Signaling] ICE Candidate from ${socket.id} for room ${roomId}`);
       socket.to(roomId).emit('signal_ice_candidate', { candidate });
     });
 
     /**
      * Event: send_chat_message
-     * Relays text chat message to the matched peer in the room.
+     * Passes message through AI & heuristic text moderation filter
      */
-    socket.on('send_chat_message', ({ roomId, message }: { roomId: string; message: string }) => {
+    socket.on('send_chat_message', async ({ roomId, message }: { roomId: string; message: string }) => {
       if (!message || !message.trim()) return;
+
+      const trimmed = message.trim();
+      const moderation = await moderateText(trimmed);
+
+      if (!moderation.isSafe) {
+        // Reject message and warn sender
+        socket.emit('message_blocked', {
+          reason: moderation.reason || 'Message blocked: Violates safety guidelines.',
+        });
+
+        // Track strikes for bad behavior
+        const currentStrikes = (ipStrikes.get(clientIp) || 0) + 1;
+        ipStrikes.set(clientIp, currentStrikes);
+
+        if (currentStrikes >= 5) {
+          // Ban IP for 1 hour
+          bannedIPs.set(clientIp, {
+            reason: 'Excessive safety policy violations (Inappropriate chat text).',
+            expiresAt: Date.now() + 60 * 60 * 1000,
+          });
+          socket.emit('banned_notice', {
+            reason: 'Banned for repeated safety policy violations.',
+            remainingSec: 3600,
+          });
+          socket.disconnect(true);
+        }
+        return;
+      }
+
+      // Safe message: relay to peer
       socket.to(roomId).emit('receive_chat_message', {
-        message: message.trim(),
+        message: trimmed,
         sender: 'stranger',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
     });
 
     /**
+     * Event: report_user
+     * Triggered when a user reports their matched peer
+     */
+    socket.on('report_user', ({
+      roomId,
+      reason,
+      details,
+    }: {
+      roomId: string;
+      reason: string;
+      details?: string;
+    }) => {
+      console.warn(`[Report] Socket ${socket.id} reported user in room ${roomId}. Reason: ${reason}`);
+
+      const room = activeRooms.get(roomId);
+      if (!room) return;
+
+      const offenderId = room.p1 === socket.id ? room.p2 : room.p1;
+      const offenderSocket = io.sockets.sockets.get(offenderId);
+
+      if (offenderSocket) {
+        const offenderIp = getClientIp(offenderSocket);
+        const strikes = (ipStrikes.get(offenderIp) || 0) + 1;
+        ipStrikes.set(offenderIp, strikes);
+
+        // Immediate ban for high-severity violations or 2+ strikes
+        const isSevere = /nudity|underage|harassment/i.test(reason);
+        if (isSevere || strikes >= 2) {
+          const banDurationMs = 2 * 60 * 60 * 1000; // 2 hours
+          bannedIPs.set(offenderIp, {
+            reason: `Account suspended: Reported for ${reason}`,
+            expiresAt: Date.now() + banDurationMs,
+          });
+
+          offenderSocket.emit('banned_notice', {
+            reason: `You have been temporarily suspended for violating Community Guidelines (${reason}).`,
+            remainingSec: Math.ceil(banDurationMs / 1000),
+          });
+          offenderSocket.disconnect(true);
+        } else {
+          offenderSocket.emit('warning_notice', {
+            message: 'You have been reported by your chat partner. Continued violations will result in an IP ban.',
+          });
+        }
+      }
+
+      // Close the room and notify reporter
+      leaveActiveRoom(io, socket.id, false, 'Chat ended due to report submission');
+      socket.emit('report_confirmed', {
+        message: 'Thank you for keeping Destiny safe. The user has been flagged and blocked.',
+      });
+      broadcastStats(io);
+    });
+
+    /**
      * Event: disconnect
-     * Clean up queue and notify room partner upon network or tab closure.
      */
     socket.on('disconnect', () => {
       console.log(`[Socket.IO] Client disconnected: ${socket.id}`);

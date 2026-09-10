@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, MicOff, Camera, VideoOff, RefreshCw, Square, SkipForward, Loader2 } from 'lucide-react';
+import { Mic, MicOff, Camera, VideoOff, RefreshCw, Square, SkipForward, Loader2, Flag } from 'lucide-react';
 
 interface VideoControlsProps {
   isMuted: boolean;
@@ -10,7 +10,9 @@ interface VideoControlsProps {
   onToggleMirror: () => void;
   onNext: () => void;
   onStop: () => void;
+  onReport?: () => void;
   isSearching: boolean;
+  isConnected?: boolean;
 }
 
 export const VideoControls: React.FC<VideoControlsProps> = ({
@@ -22,12 +24,14 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
   onToggleMirror,
   onNext,
   onStop,
+  onReport,
   isSearching,
+  isConnected,
 }) => {
   return (
-    <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 bg-white/95 border border-slate-200/90 backdrop-blur-xl rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] shrink-0 transition-all">
+    <div className="flex items-center justify-between gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-white/95 border border-slate-200/90 backdrop-blur-xl rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] shrink-0 transition-all">
       {/* Media Device Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 sm:gap-1.5">
         {/* Microphone Toggle */}
         <button
           onClick={onToggleMute}
@@ -83,13 +87,25 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
         </button>
       </div>
 
-      {/* Main Flow Controls: Next Stranger & Stop Chat */}
-      <div className="flex items-center gap-1.5 sm:gap-2">
+      {/* Main Flow Controls: Next Stranger, Report & Leave */}
+      <div className="flex items-center gap-1 sm:gap-1.5">
+        {/* Report Button (Active when connected) */}
+        {onReport && isConnected && (
+          <button
+            onClick={onReport}
+            className="p-2 sm:p-2.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 font-bold text-xs rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+            title="Report & Block Stranger"
+          >
+            <Flag className="w-3.5 h-3.5 text-amber-600" />
+            <span className="hidden md:inline text-[11px]">Report</span>
+          </button>
+        )}
+
         {/* Next Stranger Button */}
         <button
           onClick={onNext}
           disabled={isSearching}
-          className="px-3.5 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 active:scale-98 text-white font-extrabold text-xs sm:text-sm rounded-lg shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 active:scale-98 text-white font-extrabold text-xs sm:text-sm rounded-lg shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           {isSearching ? (
             <>

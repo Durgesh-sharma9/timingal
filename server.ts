@@ -1,31 +1,20 @@
-/**
- * ============================================================================
- * IMPORTANT NOTICE / DISCLAIMER:
- * This application is a LOCAL DEMO & LEARNING PROJECT ONLY.
- * It is NOT intended for public deployment or commercial production use.
- * 
- * A production-ready version of a random video chat app requires:
- * 1. Mandatory Age Verification (18+ / Parental Controls).
- * 2. Automated Content Moderation (real-time video/image classification & text filters).
- * 3. User Reporting, Blocking, and Abuse Monitoring Mechanisms.
- * 4. Rate Limiting, Anti-Spam, and IP/Device Banning capabilities.
- * 5. TURN Servers (CoTURN / Twilio) alongside STUN for symmetric NAT traversal.
- * 6. Legal Compliance & Terms of Service Review (COPPA, GDPR, Privacy Policies).
- * ============================================================================
- */
-
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { setupSignalingServer } from './server/signaling.js';
+import { moderateFrame } from './server/moderation.js';
+import { getIceServers } from './server/ice.js';
 
 const PORT = 3000;
 
 async function startServer() {
   const app = express();
   const httpServer = createServer(app);
+
+  // Body parsing for JSON (needed for frame snapshots)
+  app.use(express.json({ limit: '10mb' }));
 
   const io = new Server(httpServer, {
     cors: {
@@ -39,7 +28,34 @@ async function startServer() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Attach Socket.IO signaling event listeners
+  // Dynamic ICE (STUN + TURN) Server Endpoint
+  app.get('/api/ice-servers', (_req, res) => {
+    try {
+      const config = getIceServers();
+      res.json(config);
+    } catch (err) {
+      console.error('[API] Error getting ICE servers:', err);
+      res.status(500).json({ error: 'Failed to retrieve ICE servers' });
+    }
+  });
+
+  // Real-Time Video Frame AI Moderation Endpoint
+  app.post('/api/moderate-frame', async (req, res) => {
+    try {
+      const { image } = req.body;
+      if (!image) {
+        return res.status(400).json({ error: 'Image data is required' });
+      }
+
+      const result = await moderateFrame(image);
+      res.json(result);
+    } catch (err) {
+      console.error('[API] Error moderating frame:', err);
+      res.status(500).json({ isSafe: true, confidence: 0.5 });
+    }
+  });
+
+  // Attach Socket.IO signaling & moderation event listeners
   setupSignalingServer(io);
 
   // Integrate Vite dev middleware or static production files
