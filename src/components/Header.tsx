@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ stats, onOpenNotice }) => {
         </div>
         <div>
           <h1 className="text-base lg:text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            timgle
+            destiny
             <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-900 text-indigo-400 font-semibold border border-indigo-500/20">
               Live
             </span>
