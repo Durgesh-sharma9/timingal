@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, MicOff, Camera, VideoOff, RefreshCw, Square, SkipForward, Loader2, Flag } from 'lucide-react';
+import { Mic, MicOff, Camera, VideoOff, RefreshCw, Square, SkipForward, Loader2, Flag, Sparkles } from 'lucide-react';
 
 interface VideoControlsProps {
   isMuted: boolean;
@@ -11,6 +11,8 @@ interface VideoControlsProps {
   onNext: () => void;
   onStop: () => void;
   onReport?: () => void;
+  onToggleEffects?: () => void;
+  hasActiveEffects?: boolean;
   isSearching: boolean;
   isConnected?: boolean;
 }
@@ -25,12 +27,14 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
   onNext,
   onStop,
   onReport,
+  onToggleEffects,
+  hasActiveEffects,
   isSearching,
   isConnected,
 }) => {
   return (
     <div className="flex items-center justify-between gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-white/95 border border-slate-200/90 backdrop-blur-xl rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] shrink-0 transition-all">
-      {/* Media Device Controls */}
+      {/* Media Device Controls & Effects */}
       <div className="flex items-center gap-1 sm:gap-1.5">
         {/* Microphone Toggle */}
         <button
@@ -72,6 +76,25 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
           </span>
         </button>
 
+        {/* Effects & Filters Button */}
+        {onToggleEffects && (
+          <button
+            onClick={onToggleEffects}
+            className={`p-2 sm:p-2.5 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all duration-150 cursor-pointer relative ${
+              hasActiveEffects
+                ? 'bg-indigo-50 border-indigo-300 text-indigo-700 shadow-2xs'
+                : 'bg-slate-100/90 hover:bg-slate-200/80 border-slate-200 text-slate-700 hover:text-slate-900'
+            }`}
+            title="Camera Backgrounds & Face Filters"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <span className="hidden lg:inline text-[11px] font-semibold">Effects</span>
+            {hasActiveEffects && (
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-600 absolute top-1 right-1" />
+            )}
+          </button>
+        )}
+
         {/* Mirror Toggle */}
         <button
           onClick={onToggleMirror}
@@ -83,7 +106,7 @@ export const VideoControls: React.FC<VideoControlsProps> = ({
           title="Flip / Mirror Video"
         >
           <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
-          <span className="hidden lg:inline text-[11px] font-semibold">Mirror</span>
+          <span className="hidden xl:inline text-[11px] font-semibold">Mirror</span>
         </button>
       </div>
 

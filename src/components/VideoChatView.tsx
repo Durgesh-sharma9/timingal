@@ -10,15 +10,15 @@ import {
   Send, 
   ShieldAlert, 
   EyeOff, 
-  Eye, 
   AlertTriangle,
-  Flag,
   Lock
 } from 'lucide-react';
 import { ChatMessage, ServerStats } from '../types';
 import { VideoControls } from './VideoControls';
 import { ChatPanel } from './ChatPanel';
 import { ReportModal } from './ReportModal';
+import { EffectsModal } from './EffectsModal';
+import { videoEffects, BackgroundType, FilterType } from '../utils/videoEffects';
 
 interface VideoChatViewProps {
   onStopChat: () => void;
@@ -63,6 +63,11 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [banNotice, setBanNotice] = useState<{ reason: string; remainingSec?: number } | null>(null);
 
+  // Virtual Backgrounds & AR Face Filters State
+  const [isEffectsModalOpen, setIsEffectsModalOpen] = useState<boolean>(false);
+  const [activeBackground, setActiveBackground] = useState<BackgroundType>('none');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('none');
+
   // Messages State
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [mobileInput, setMobileInput] = useState('');
@@ -72,6 +77,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
+  const rawStreamRef = useRef<MediaStream | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
   const onStatsUpdateRef = useRef(onStatsUpdate);
@@ -204,7 +210,6 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
   /**
    * Real-time Video Frame AI Scanner
-   * Periodically captures remote video frames and runs AI moderation
    */
   useEffect(() => {
     if (!isConnected || !remoteVideoRef.current) return;
@@ -248,7 +253,6 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
       }
     };
 
-    // Run first scan after 3s, then every 7s
     const initialTimeout = setTimeout(scanRemoteFrame, 3000);
     const interval = setInterval(scanRemoteFrame, 7000);
     frameScanIntervalRef.current = interval;
@@ -260,14 +264,14 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   }, [isConnected]);
 
   /**
-   * Initialize ICE servers, UserMedia and Socket connection
+   * Initialize ICE servers, UserMedia, Video Effects Pipeline & Socket connection
    */
   useEffect(() => {
     let mounted = true;
 
     async function init() {
       try {
-        // Step 1: Fetch dedicated TURN & STUN servers from server
+        // Step 1: Fetch dedicated TURN & STUN servers from backend
         try {
           const iceRes = await fetch('/api/ice-servers');
           if (iceRes.ok) {
@@ -293,15 +297,20 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           return;
         }
 
-        localStreamRef.current = stream;
+        rawStreamRef.current = stream;
+
+        // Step 3: Run stream through Video Effects Processing Engine
+        const processedStream = videoEffects.startProcessing(stream);
+        localStreamRef.current = processedStream;
+
         if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.srcObject = processedStream;
           localVideoRef.current.play().catch((err) => {
             console.warn('[WebRTC] Error playing local video:', err);
           });
         }
 
-        // Step 3: Initialize Socket.IO connection
+        // Step 4: Initialize Socket.IO connection
         const socket = io({
           transports: ['websocket', 'polling'],
         });
@@ -461,11 +470,12 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
     return () => {
       mounted = false;
       cleanupPeerConnection();
+      videoEffects.stopProcessing();
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      if (rawStreamRef.current) {
+        rawStreamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, [createPeerConnection, cleanupPeerConnection]);
@@ -493,10 +503,27 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
       socketRef.current.emit('leave_queue');
     }
     cleanupPeerConnection();
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
+    videoEffects.stopProcessing();
+    if (rawStreamRef.current) {
+      rawStreamRef.current.getTracks().forEach((track) => track.stop());
     }
     onStopChat();
+  };
+
+  /**
+   * Action: Select Background Effect
+   */
+  const handleSelectBackground = (bg: BackgroundType) => {
+    setActiveBackground(bg);
+    videoEffects.setBackground(bg);
+  };
+
+  /**
+   * Action: Select AR Face Filter
+   */
+  const handleSelectFilter = (filter: FilterType) => {
+    setActiveFilter(filter);
+    videoEffects.setFilter(filter);
   };
 
   /**
@@ -534,8 +561,8 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   };
 
   const handleToggleMute = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((track) => {
+    if (rawStreamRef.current) {
+      rawStreamRef.current.getAudioTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
       setIsMuted(!isMuted);
@@ -543,13 +570,15 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
   };
 
   const handleToggleCamera = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach((track) => {
+    if (rawStreamRef.current) {
+      rawStreamRef.current.getVideoTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
       setIsCameraOff(!isCameraOff);
     }
   };
+
+  const hasActiveEffects = activeBackground !== 'none' || activeFilter !== 'none';
 
   return (
     <div className="max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-3 flex flex-col gap-2.5 h-[calc(100vh-55px)] lg:h-auto min-h-0 overflow-hidden relative">
@@ -602,11 +631,22 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Active Effects Chip */}
+          {hasActiveEffects && (
+            <button
+              onClick={() => setIsEffectsModalOpen(true)}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span>Effects Active</span>
+            </button>
+          )}
+
           {/* AI Shield Active Indicator */}
           {isConnected && (
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
               <Shield className="w-3 h-3 text-emerald-600" />
-              AI Shield Active
+              AI Shield
             </span>
           )}
 
@@ -650,7 +690,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           <div className="relative flex-1 flex flex-col sm:grid sm:grid-cols-2 gap-2.5 min-h-0">
             {/* Remote Video Container (Stranger) */}
             <div className="relative flex-1 sm:flex-initial sm:h-full bg-slate-950 border border-slate-200 rounded-2xl overflow-hidden shadow-md flex items-center justify-center group">
-              {/* Stranger Video Element with Auto-Blur Shield if flagged */}
+              {/* Stranger Video Element */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
@@ -808,9 +848,13 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 </div>
               )}
 
+              {/* Local Label with Effects Indicator */}
               <div className="absolute top-2.5 left-2.5 bg-slate-950/80 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg text-[10px] font-bold text-white flex items-center gap-1 shadow-xs">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="hidden sm:inline">You</span>
+                {hasActiveEffects && (
+                  <span className="text-[9px] text-purple-400 font-semibold ml-0.5">✨ FX</span>
+                )}
                 {isMuted && <span className="text-[9px] text-rose-400 font-bold ml-0.5">(Muted)</span>}
               </div>
             </div>
@@ -855,6 +899,8 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
             onNext={handleNextStranger}
             onStop={handleStop}
             onReport={() => setIsReportModalOpen(true)}
+            onToggleEffects={() => setIsEffectsModalOpen(true)}
+            hasActiveEffects={hasActiveEffects}
             isSearching={isSearching}
             isConnected={isConnected}
           />
@@ -875,6 +921,16 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         onSubmitReport={handleSubmitReport}
+      />
+
+      {/* Virtual Backgrounds & AR Face Filters Modal */}
+      <EffectsModal
+        isOpen={isEffectsModalOpen}
+        onClose={() => setIsEffectsModalOpen(false)}
+        activeBackground={activeBackground}
+        activeFilter={activeFilter}
+        onSelectBackground={handleSelectBackground}
+        onSelectFilter={handleSelectFilter}
       />
     </div>
   );
