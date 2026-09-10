@@ -441,34 +441,41 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6 flex flex-col gap-3 lg:gap-4 h-[calc(100vh-65px)] lg:h-auto min-h-0 overflow-hidden">
-      {/* Status Bar */}
-      <div className="bg-[#1e293b]/80 border border-slate-800/80 backdrop-blur-md rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs shadow-md shrink-0">
+      {/* Top Session Status Bar */}
+      <div className="bg-[#0b1120]/80 border border-white/[0.08] backdrop-blur-2xl rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs shadow-lg shrink-0">
         <div className="flex items-center gap-2.5">
           {isSearching ? (
-            <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" />
+            <div className="relative flex items-center justify-center">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping" />
+              <span className="absolute w-2 h-2 rounded-full bg-indigo-400" />
+            </div>
           ) : isConnected ? (
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="relative flex items-center justify-center">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="absolute w-2 h-2 rounded-full bg-emerald-400" />
+            </div>
           ) : (
-            <AlertCircle className="w-4 h-4 text-amber-500" />
+            <AlertCircle className="w-4 h-4 text-amber-400" />
           )}
-          <span className="font-bold text-slate-200">{statusText}</span>
+          <span className="font-bold text-slate-100 text-xs sm:text-[13px]">{statusText}</span>
         </div>
 
         {roomId && (
-          <div className="hidden sm:flex items-center gap-2 text-slate-400 font-mono text-[10px] tracking-wider uppercase font-bold">
-            <Shield className="w-3.5 h-3.5 text-indigo-400" />
-            <span>P2P Channel: {roomId.slice(0, 14)}...</span>
+          <div className="hidden sm:flex items-center gap-2 text-slate-400 font-mono text-[10px] tracking-wider uppercase font-semibold bg-slate-900/80 border border-white/[0.06] px-3 py-1 rounded-full">
+            <Shield className="w-3 h-3 text-indigo-400" />
+            <span>P2P ID: {roomId.slice(0, 12)}</span>
           </div>
         )}
       </div>
 
-      {/* Main Grid: Left Side Side-by-Side Videos, Right Side Text Chat */}
+      {/* Main Grid: Video Streams & Text Chat */}
       <div className="flex flex-col lg:grid lg:grid-cols-3 gap-3 lg:gap-4 flex-1 min-h-0">
         {/* Videos Container (Takes 2 cols on lg screens) */}
         <div className="lg:col-span-2 flex flex-col gap-3 min-h-0 flex-1 lg:flex-initial">
           <div className="relative flex-1 flex flex-col sm:grid sm:grid-cols-2 gap-3 min-h-0">
-            {/* Remote Video (Stranger) */}
-            <div className="relative flex-1 sm:flex-initial sm:h-full bg-[#0f172a] border border-slate-800/80 rounded-3xl overflow-hidden shadow-xl transition-all duration-300 hover:border-slate-700 flex items-center justify-center group">
+            {/* Remote Video Container (Stranger) */}
+            <div className="relative flex-1 sm:flex-initial sm:h-full bg-[#070b14] border border-white/[0.09] hover:border-indigo-500/30 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] transition-all duration-300 flex items-center justify-center group">
+              {/* Stranger Video Element */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
@@ -476,43 +483,59 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 className={`w-full h-full object-cover ${!isConnected ? 'hidden' : 'block'}`}
               />
 
+              {/* Not Connected Overlay: Radar Searching / Matching / Ready States */}
               {!isConnected && (
-                <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
+                <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center space-y-4">
                   {isSearching ? (
                     <>
-                      <div className="relative flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center shadow-sm">
-                          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                      {/* Concentric Radar Sonar Waves */}
+                      <div className="relative flex items-center justify-center w-36 h-36">
+                        <div className="absolute inset-0 rounded-full border border-indigo-500/30 animate-radar-sonar-1" />
+                        <div className="absolute inset-0 rounded-full border border-purple-500/30 animate-radar-sonar-2" />
+                        <div className="absolute inset-0 rounded-full border border-pink-500/20 animate-radar-sonar-3" />
+                        
+                        {/* Center Radar Scanner Orb */}
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-950 via-purple-950 to-slate-900 border border-indigo-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.3)] relative overflow-hidden">
+                          {/* Rotating radar scanner beam */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent animate-radar-sweep origin-center" />
+                          <Loader2 className="w-8 h-8 text-indigo-400 animate-spin relative z-10" />
                         </div>
-                        <div className="absolute inset-0 rounded-full border border-indigo-400/10 animate-ping" />
                       </div>
-                      <p className="text-sm font-bold text-slate-100">Searching for stranger...</p>
-                      <p className="text-xs text-slate-400 max-w-xs">
-                        Matching you with available users in the queue.
-                      </p>
+
+                      <div className="space-y-1">
+                        <p className="text-base font-bold font-display text-white">Searching for someone new...</p>
+                        <p className="text-xs text-slate-400 max-w-xs">
+                          Matching you with another user in the global waiting room.
+                        </p>
+                      </div>
                     </>
                   ) : roomId ? (
                     <>
-                      <div className="relative flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center shadow-sm">
-                          <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+                      <div className="relative flex items-center justify-center w-24 h-24">
+                        <div className="absolute inset-0 rounded-full border border-purple-500/40 animate-ping" />
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                          <Sparkles className="w-8 h-8 text-white animate-pulse" />
                         </div>
-                        <div className="absolute inset-0 rounded-full border border-purple-400/10 animate-ping" />
                       </div>
-                      <p className="text-sm font-bold text-slate-100">Match found!</p>
-                      <p className="text-xs text-slate-400 max-w-xs">
-                        Establishing secure P2P video...
-                      </p>
+                      <div className="space-y-1">
+                        <p className="text-base font-bold font-display text-white">Stranger Found!</p>
+                        <p className="text-xs text-slate-400 max-w-xs">
+                          Negotiating direct peer-to-peer WebRTC stream...
+                        </p>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <div className="w-14 h-14 rounded-full bg-[#1e293b]/50 border border-slate-800 flex items-center justify-center text-slate-400">
-                        <UserX className="w-7 h-7" />
+                      <div className="w-16 h-16 rounded-2xl bg-slate-900/80 border border-white/[0.08] flex items-center justify-center text-slate-400 shadow-md">
+                        <UserX className="w-8 h-8" />
                       </div>
-                      <p className="text-sm font-bold text-slate-300">Ready to Match</p>
+                      <div className="space-y-1">
+                        <p className="text-base font-bold font-display text-slate-200">Chat Ended</p>
+                        <p className="text-xs text-slate-400">Ready to meet your next conversation partner?</p>
+                      </div>
                       <button
                         onClick={handleNextStranger}
-                        className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-555 hover:from-indigo-400 hover:to-purple-550 text-white font-extrabold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+                        className="px-6 py-2.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-purple-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-[0_4px_15px_rgba(99,102,241,0.3)] cursor-pointer"
                       >
                         Find Next Stranger
                       </button>
@@ -521,7 +544,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 </div>
               )}
 
-              {/* Mobile Chat Overlay (TikTok/Instagram style, only visible on mobile/tablet) */}
+              {/* Mobile Chat Overlay (Visible on smaller screens) */}
               <div
                 ref={mobileChatRef}
                 className="lg:hidden absolute bottom-4 left-3 w-[75%] max-w-[260px] z-30 max-h-[120px] overflow-y-auto flex flex-col gap-1.5 pointer-events-auto no-scrollbar"
@@ -530,7 +553,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                   if (msg.sender === 'system') {
                     return (
                       <div key={msg.id} className="self-center py-0.5">
-                        <span className="text-[9px] bg-slate-950/70 backdrop-blur-md border border-slate-800/40 text-indigo-300 font-bold px-2.5 py-0.5 rounded-full">
+                        <span className="text-[9px] bg-slate-950/80 backdrop-blur-md border border-white/[0.08] text-indigo-300 font-bold px-2.5 py-0.5 rounded-full shadow-sm">
                           {msg.text}
                         </span>
                       </div>
@@ -541,10 +564,10 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                   return (
                     <div
                       key={msg.id}
-                      className={`max-w-[90%] px-3 py-1.5 rounded-xl text-[10px] sm:text-xs backdrop-blur-md border border-slate-850/40 text-white ${
+                      className={`max-w-[90%] px-3 py-1.5 rounded-xl text-[10px] sm:text-xs backdrop-blur-md border text-white shadow-md ${
                         isYou
-                          ? 'bg-indigo-650/80 border-indigo-500/20 self-end rounded-tr-none'
-                          : 'bg-slate-900/80 self-start rounded-tl-none'
+                          ? 'bg-indigo-600/80 border-indigo-500/30 self-end rounded-tr-none'
+                          : 'bg-slate-900/85 border-white/[0.08] self-start rounded-tl-none'
                       }`}
                     >
                       <span className="font-bold text-[8px] text-slate-400 block mb-0.5">
@@ -556,15 +579,15 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 })}
               </div>
 
-              {/* Overlay Label */}
-              <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md border border-slate-800 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 shadow-sm z-10">
+              {/* Stranger Label Badge */}
+              <div className="absolute top-3.5 left-3.5 bg-[#090d16]/80 backdrop-blur-xl border border-white/[0.09] px-3 py-1.5 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-2 shadow-md z-10">
                 <User className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Stranger</span>
               </div>
             </div>
 
-            {/* Local Video (You) - Floats on top-right on mobile/tablet */}
-            <div className="absolute top-3 right-3 w-28 h-36 sm:relative sm:top-0 sm:right-0 sm:w-full sm:h-full sm:border sm:border-slate-800 sm:shadow-md bg-[#0f172a] rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-slate-700 flex items-center justify-center group z-20 shadow-2xl border-2 border-slate-800">
+            {/* Local Video Container (You) - Picture-in-Picture on Mobile, Side-by-Side on Desktop */}
+            <div className="absolute top-3.5 right-3.5 w-28 h-36 sm:relative sm:top-0 sm:right-0 sm:w-full sm:h-full sm:border sm:border-white/[0.09] sm:shadow-lg bg-[#070b14] rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:border-indigo-500/30 flex items-center justify-center group z-20 shadow-2xl border-2 border-indigo-500/30">
               <video
                 ref={localVideoRef}
                 autoPlay
@@ -575,23 +598,23 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
 
               {isCameraOff && (
                 <div className="flex flex-col items-center justify-center text-slate-400 p-6 space-y-2">
-                  <div className="w-14 h-14 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
-                    <User className="w-7 h-7" />
+                  <div className="w-12 h-12 rounded-xl bg-slate-900 border border-white/[0.08] flex items-center justify-center text-slate-400">
+                    <User className="w-6 h-6" />
                   </div>
-                  <p className="text-xs font-bold text-slate-300">Camera Paused</p>
+                  <p className="text-xs font-bold text-slate-300">Camera Off</p>
                 </div>
               )}
 
-              {/* Overlay Label */}
-              <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md border border-slate-800 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 shadow-sm">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              {/* You Label Badge */}
+              <div className="absolute top-3 left-3 bg-[#090d16]/80 backdrop-blur-xl border border-white/[0.09] px-2.5 py-1 rounded-xl text-xs font-bold text-slate-200 flex items-center gap-1.5 shadow-md">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="hidden sm:inline">You</span>
-                {isMuted && <span className="text-[10px] text-rose-450 ml-1 font-bold">(Muted)</span>}
+                {isMuted && <span className="text-[10px] text-rose-400 font-bold ml-0.5">(Muted)</span>}
               </div>
             </div>
           </div>
 
-          {/* Mobile Chat Input Form (Only visible on mobile/tablet, slides up with keyboard) */}
+          {/* Mobile Chat Input Form */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -600,7 +623,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
                 setMobileInput('');
               }
             }}
-            className="lg:hidden flex gap-2 p-2 bg-[#1e293b]/60 border border-slate-800/60 rounded-2xl shrink-0"
+            className="lg:hidden flex gap-2 p-2 bg-[#0b1120]/80 border border-white/[0.08] rounded-2xl shrink-0 backdrop-blur-md"
           >
             <input
               type="text"
@@ -608,18 +631,18 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
               onChange={(e) => setMobileInput(e.target.value)}
               placeholder={roomId ? "Send message to stranger..." : "Waiting to match..."}
               disabled={!roomId}
-              className="flex-1 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none disabled:opacity-40"
+              className="flex-1 bg-slate-900 border border-white/[0.08] focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none disabled:opacity-40"
             />
             <button
               type="submit"
               disabled={!roomId || !mobileInput.trim()}
-              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
+              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shrink-0 shadow-md"
             >
               <Send className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Video Action Controls Bar */}
+          {/* Video Action Controls Dock */}
           <VideoControls
             isMuted={isMuted}
             isCameraOff={isCameraOff}
@@ -633,7 +656,7 @@ export const VideoChatView: React.FC<VideoChatViewProps> = ({
           />
         </div>
 
-        {/* Text Chat Panel (Only visible on desktop lg screens) */}
+        {/* Text Chat Panel (Visible on desktop screens) */}
         <div className="hidden lg:flex lg:col-span-1 h-full min-h-0 flex-col">
           <ChatPanel
             messages={messages}
